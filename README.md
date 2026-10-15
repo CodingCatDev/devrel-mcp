@@ -42,6 +42,11 @@ Use Node.js **22.12+** for the Cloudflare/Better Auth tooling (local stdio still
    `http://localhost:8787/mcp`; request `offline_access` as well if the client needs refresh tokens.
    HTTP is for loopback development only; use HTTPS for deployed clients.
 
+Run `npm run test:hosted` to build and exercise local Workers/D1 authentication, PKCE/refresh,
+credential isolation, documentation, and stdio compatibility. Tests seed application sessions
+and mock provider submissions; completing GitHub login and submitting real activities requires
+your own configured OAuth application and provider accounts.
+
 ### Deploy
 
 1. Authenticate Wrangler with `npx wrangler login` and create a database:

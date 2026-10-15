@@ -93,7 +93,15 @@ async function start() {
   if (!hasOAuthRequest) return;
   if (location.pathname !== "/consent") {
     const data = await api("/api/auth/oauth2/continue", { postLogin: true, oauth_query: oauthQuery });
-    if (data.url) location.assign(data.url);
+    if (data.url) {
+      const destination = new URL(data.url, location.origin);
+      if (destination.origin === location.origin && destination.pathname === "/") {
+        element("login").hidden = false;
+        element("message").textContent = "Your MCP client requires a fresh sign-in. Sign in with GitHub to continue.";
+      } else {
+        location.assign(data.url);
+      }
+    }
     return;
   }
   const authorization = await api("/api/authorization-request", { oauth_query: oauthQuery });

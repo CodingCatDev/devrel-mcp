@@ -3,6 +3,7 @@ import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import { runInNewContext } from "node:vm";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
@@ -393,5 +394,55 @@ test("local stdio entry point still initializes and serves tools and documentati
     expect(documentation.contents[0].text).toContain("API");
   } finally {
     await client.close();
+  }
+});
+
+test("web login offers fresh authentication instead of looping on reauthentication requests", async () => {
+  const source = await readFile(resolve("public/app.js"), "utf8");
+  const { clientId } = await authorize("alice");
+  for (const requirement of ["prompt=login", "max_age=0"]) {
+    const query = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: "http://localhost:9911/callback",
+      response_type: "code",
+      scope: "mcp",
+      resource: `${origin}/mcp`,
+      code_challenge: createHash("sha256").update(randomBytes(32)).digest("base64url"),
+      code_challenge_method: "S256",
+    });
+    for (const [name, value] of new URLSearchParams(requirement)) query.set(name, value);
+    const authorization = await request(`/api/auth/oauth2/authorize?${query}`, {
+      headers: { Cookie: cookies.alice, Accept: "application/json" },
+    });
+    expect(authorization.status).toBe(200);
+    const login = new URL((await authorization.json()).url, origin);
+    expect(login.pathname).toBe("/");
+    const elements = new Map<string, { hidden: boolean; textContent: string }>();
+    const redirects: string[] = [];
+    const context = {
+      URL,
+      URLSearchParams,
+      document: {
+        getElementById: (id: string) => {
+          if (!elements.has(id)) elements.set(id, { hidden: true, textContent: "" });
+          return elements.get(id);
+        },
+      },
+      location: {
+        origin,
+        pathname: "/",
+        search: login.search,
+        assign: (url: string) => redirects.push(url),
+      },
+      fetch: (path: string, options: RequestInit) =>
+        request(path, {
+          ...options,
+          headers: { ...Object.fromEntries(new Headers(options.headers)), Cookie: cookies.alice, Origin: origin },
+        }),
+    };
+    await runInNewContext(source, context);
+    expect(elements.get("login")?.hidden).toBe(false);
+    expect(elements.get("message")?.textContent).toContain("fresh sign-in");
+    expect(redirects).toEqual([]);
   }
 });
