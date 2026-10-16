@@ -62,8 +62,25 @@ async function deliverAuthEmail(
   }
 }
 
-export function createAuth(env: HostedEnv) {
-  const origin = new URL(env.BETTER_AUTH_URL).origin;
+export function resolveAllowedOrigins(env: HostedEnv): string[] {
+  const primary = new URL(env.BETTER_AUTH_URL).origin;
+  if (primary.startsWith("http://localhost:") || primary.startsWith("http://127.0.0.1:")) {
+    return [primary];
+  }
+  const origins = new Set<string>([primary]);
+  if (env.PUBLIC_SITE_URL) {
+    try {
+      origins.add(new URL(env.PUBLIC_SITE_URL).origin);
+    } catch {
+      // ignore
+    }
+  }
+  return Array.from(origins);
+}
+
+export function createAuth(env: HostedEnv, activeOrigin?: string) {
+  const origin = activeOrigin || new URL(env.BETTER_AUTH_URL).origin;
+  const trustedOrigins = resolveAllowedOrigins(env);
 
   const socialProviders: Record<string, { clientId: string; clientSecret: string }> = {};
   if (env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET) {
@@ -90,7 +107,7 @@ export function createAuth(env: HostedEnv) {
     baseURL: origin,
     basePath: "/api/auth",
     secret: env.BETTER_AUTH_SECRET,
-    trustedOrigins: [origin],
+    trustedOrigins,
     logger: { disabled: true },
     account: { encryptOAuthTokens: true },
     socialProviders,

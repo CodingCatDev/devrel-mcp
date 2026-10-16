@@ -2,7 +2,7 @@ import { requireMcpAuth } from "@better-auth/mcp";
 import { oauthProviderAuthServerMetadata, verifyOAuthQueryParams } from "@better-auth/oauth-provider";
 import { type LoggedDevRelActivity, UnifiedActivityReportingServer } from "@codingcatdev/devrel-mcp";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
-import { type HostedEnv, createAuth } from "./auth.js";
+import { type HostedEnv, createAuth, resolveAllowedOrigins } from "./auth.js";
 import {
   getConnectionStatus,
   loadCredentials,
@@ -132,13 +132,14 @@ async function listActivitiesFromD1(
 
 async function route(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
-  const origin = new URL(env.BETTER_AUTH_URL).origin;
-  if (url.origin !== origin) return json({ message: "Invalid host" }, 400);
+  const allowedOrigins = resolveAllowedOrigins(env);
+  if (!allowedOrigins.includes(url.origin)) return json({ message: "Invalid host" }, 400);
+  const origin = url.origin;
   if (request.headers.has("origin") && request.headers.get("origin") !== origin) {
     return json({ message: "Origin not allowed" }, 403);
   }
 
-  const auth = createAuth(env);
+  const auth = createAuth(env, origin);
 
   if (
     url.pathname === "/.well-known/oauth-authorization-server" ||
