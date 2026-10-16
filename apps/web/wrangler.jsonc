@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "devrel-mcp",
-  "account_id": "51d8bc77b3b1ba867fdfa7f6217fb39e",
+  "account_id": "c46bd0f3b9ed47b8692cca098030edbf",
   "main": "src/worker/index.ts",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
@@ -13,14 +13,14 @@
   },
   "rules": [{ "type": "Text", "globs": ["**/*.md"], "fallthrough": true }],
   "vars": {
-    "BETTER_AUTH_URL": "https://devrel-mcp.codingcatdev-devrel-web.workers.dev",
+    "BETTER_AUTH_URL": "https://devrel.codingcat.dev",
     "PUBLIC_SITE_URL": "https://devrel.codingcat.dev"
   },
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "devrel-mcp",
-      "database_id": "092b1070-6951-4c37-8276-ccbbc6ba06ce",
+      "database_id": "88e72347-89a2-4ddd-9cb5-b049f93579f5",
       "migrations_dir": "migrations"
     }
   ],
@@ -33,7 +33,7 @@
   ],
   "env": {
     "production": {
-      "account_id": "51d8bc77b3b1ba867fdfa7f6217fb39e",
+      "account_id": "c46bd0f3b9ed47b8692cca098030edbf",
       "routes": [
         {
           "pattern": "devrel.codingcat.dev",
@@ -48,7 +48,7 @@
         {
           "binding": "DB",
           "database_name": "devrel-mcp",
-          "database_id": "092b1070-6951-4c37-8276-ccbbc6ba06ce",
+          "database_id": "88e72347-89a2-4ddd-9cb5-b049f93579f5",
           "migrations_dir": "migrations"
         }
       ],

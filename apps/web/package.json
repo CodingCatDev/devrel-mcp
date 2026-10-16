@@ -8,9 +8,9 @@
     "build": "astro build",
     "dev": "astro build && wrangler dev",
     "dev:hosted": "astro build && wrangler dev",
-    "deploy": "astro build && wrangler deploy",
+    "deploy": "astro build && wrangler deploy --env production",
     "db:migrate:local": "wrangler d1 migrations apply DB --local",
-    "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
+    "db:migrate:remote": "wrangler d1 migrations apply DB --remote --env production",
     "test:hosted": "playwright test tests/hosted.spec.ts --workers=1"
   },
   "dependencies": {
