@@ -18,7 +18,7 @@
     "@better-auth/oauth-provider": "^1.7.10",
     "@codingcatdev/devrel-mcp": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.32.1",
-    "astro": "^5.5.0",
+    "astro": "^7.3.8",
     "better-auth": "^1.7.10"
   },
   "devDependencies": {
