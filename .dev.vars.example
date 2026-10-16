@@ -1,6 +1,16 @@
-# Copy to .dev.vars for wrangler dev. Never commit real values.
+# Copy to apps/web/.dev.vars for wrangler dev. Never commit real values.
 # Use independent random values: openssl rand -base64 32
 BETTER_AUTH_SECRET=
 CREDENTIAL_ENCRYPTION_KEY=
+
+# Email Magic Link & 6-Digit OTP Delivery (Resend)
+RESEND_API_KEY=
+RESEND_FROM_EMAIL="DevRel MCP <auth@codingcat.dev>"
+
+# Optional OAuth Providers (for Sign-In & 1-Click Provider OAuth Connect)
 GITHUB_CLIENT_ID=
 GITHUB_CLIENT_SECRET=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+MICROSOFT_CLIENT_ID=
+MICROSOFT_CLIENT_SECRET=

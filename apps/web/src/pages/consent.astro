@@ -1,0 +1,12 @@
+---
+import PortalApp from "../components/PortalApp.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Authorize MCP Client"
+  description="Review and approve OAuth 2.1 access for your Model Context Protocol (MCP) client on DevRel MCP."
+  canonicalPath="/consent"
+>
+  <PortalApp isConsentRoute={true} />
+</BaseLayout>

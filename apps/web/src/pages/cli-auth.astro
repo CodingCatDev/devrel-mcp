@@ -1,0 +1,35 @@
+---
+import PortalApp from "../components/PortalApp.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="CLI Terminal Verification"
+  description="Approve a DevRel MCP CLI terminal login session using your verification code."
+  canonicalPath="/cli-auth"
+>
+  <section class="card" style="border-color:var(--accent);">
+    <h2 style="margin-top:0;">💻 Approve CLI Terminal Session</h2>
+    <p style="color:var(--text-muted);">
+      Sign in below (if not already signed in), then enter or confirm the 8-character verification code displayed in your terminal (`npx @codingcatdev/devrel-mcp login`).
+    </p>
+    <form id="cli-approve-form" style="max-width:420px;">
+      <div class="field">
+        <label for="cli-user-code">Terminal Verification Code</label>
+        <span id="cli-code-hint" class="hint">Format: ABCD-1234 (printed in your terminal)</span>
+        <input
+          type="text"
+          id="cli-user-code"
+          name="userCode"
+          required
+          maxlength="12"
+          aria-describedby="cli-code-hint"
+          placeholder="ABCD-1234"
+        />
+      </div>
+      <button type="submit" id="cli-approve-btn">Approve CLI Access</button>
+    </form>
+  </section>
+
+  <PortalApp />
+</BaseLayout>

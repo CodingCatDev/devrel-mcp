@@ -1,0 +1,49 @@
+---
+import PortalApp from "../components/PortalApp.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="DevRel Activity Reporting & Analytics MCP Server"
+  canonicalPath="/"
+>
+  <PortalApp />
+
+  <section class="card" aria-labelledby="how-it-works">
+    <h2 id="how-it-works" style="margin-top:0;">🚀 Connect Any AI Agent to Your DevRel Workflow</h2>
+    <p style="color:var(--text-muted);">
+      DevRel MCP (`https://devrel.codingcat.dev/mcp`) implements the official <strong>MCP Streamable HTTP</strong> and
+      <strong>MCP OAuth 2.1</strong> specifications (Protected Resource Metadata, Dynamic Client Registration, PKCE S256,
+      and per-user AES-256-GCM encrypted Cloudflare D1 storage).
+    </p>
+
+    <div class="grid-3">
+      <article class="card" style="margin-bottom:0; background:rgba(15,22,38,0.65);">
+        <h3 style="margin-top:0; font-size:1.05rem;">1. Claude Code & Cursor</h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">
+          Add the remote Streamable HTTP endpoint. Your editor will automatically launch OAuth 2.1 login & consent:
+        </p>
+        <pre><code>claude mcp add --transport http \
+  devrel https://devrel.codingcat.dev/mcp</code></pre>
+      </article>
+
+      <article class="card" style="margin-bottom:0; background:rgba(15,22,38,0.65);">
+        <h3 style="margin-top:0; font-size:1.05rem;">2. Auto-Pull Content Stats</h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">
+          Ask your AI assistant to fetch your latest YouTube video views, Dev.to reads, Hashnode posts, or GitHub releases and submit them to GDE & MVP in one prompt.
+        </p>
+        <pre><code>"Fetch my latest YouTube video stats
+and submit it to both Google GDE
+and Microsoft MVP."</code></pre>
+      </article>
+
+      <article class="card" style="margin-bottom:0; background:rgba(15,22,38,0.65);">
+        <h3 style="margin-top:0; font-size:1.05rem;">3. Multi-Program Support</h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">
+          Built for Google Developer Experts (GDE), Microsoft MVPs, AWS Community Builders, Docker Captains, Cypress Ambassadors, and custom Advocu programs.
+        </p>
+        <a href="/docs" class="btn secondary" style="width:100%;">Explore All 19 MCP Tools →</a>
+      </article>
+    </div>
+  </section>
+</BaseLayout>

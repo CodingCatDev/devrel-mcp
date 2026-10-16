@@ -1,0 +1,204 @@
+---
+interface Props {
+  isConsentRoute?: boolean;
+}
+const { isConsentRoute = false } = Astro.props;
+---
+
+<section class="hero card">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+    <div>
+      <span class="badge">Model Context Protocol (MCP) • OAuth 2.1 • Cloudflare D1</span>
+      <h1 style="margin:0.5rem 0 0.4rem; font-size:2rem;">DevRel Activity Reporting & Analytics MCP</h1>
+      <p style="margin:0; color:var(--text-muted); max-width:740px;">
+        Sign in with your email magic link, 6-digit code, CLI terminal link, or GitHub. Connect your
+        <strong>Google GDE (Advocu)</strong>, <strong>Microsoft MVP</strong>, <strong>AWS Community Builders</strong>,
+        <strong>Docker Captains</strong>, and content analytics APIs (<strong>YouTube</strong>, <strong>Dev.to</strong>,
+        <strong>Hashnode</strong>, <strong>GitHub</strong>), then authorize any remote MCP client at
+        <code id="endpoint">https://devrel.codingcat.dev/mcp</code>.
+      </p>
+    </div>
+  </div>
+
+  <p id="message" role="status" class="status-banner"></p>
+
+  <!-- Unauthenticated Sign-In Section -->
+  <div id="auth-panel" style="margin-top:1.25rem;">
+    <div class="grid-2">
+      <div class="card" style="margin-bottom:0; background:rgba(15,22,38,0.75);">
+        <h2 style="margin-top:0; font-size:1.2rem;">✉️ Sign in with Email (Magic Link or 6-Digit Code)</h2>
+        <form id="email-auth-form">
+          <div class="field">
+            <label for="auth-email">Email Address</label>
+            <span id="email-hint" class="hint">Format: you@domain.com — We'll send a one-click link or 6-digit OTP</span>
+            <input
+              type="email"
+              id="auth-email"
+              name="email"
+              required
+              autocomplete="email"
+              aria-describedby="email-hint"
+              aria-errormessage="email-error"
+              placeholder="alex@codingcat.dev"
+            />
+            <div id="email-error" class="error-msg">
+              <span aria-hidden="true">❌</span> Please enter a valid email address.
+            </div>
+          </div>
+          <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+            <button type="submit" id="send-magic-link">Send Magic Link</button>
+            <button type="button" id="send-otp" class="secondary">Send 6-Digit Code</button>
+          </div>
+        </form>
+
+        <form id="otp-verify-form" hidden style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border);">
+          <div class="field">
+            <label for="auth-otp">Enter 6-Digit Verification Code</label>
+            <span id="otp-hint" class="hint">Check your email inbox for the 6-digit code</span>
+            <input
+              type="text"
+              id="auth-otp"
+              name="otp"
+              inputmode="numeric"
+              pattern="[0-9]{6}"
+              maxlength="6"
+              autocomplete="one-time-code"
+              required
+              aria-describedby="otp-hint"
+              aria-errormessage="otp-error"
+              placeholder="123456"
+            />
+            <div id="otp-error" class="error-msg">
+              <span aria-hidden="true">❌</span> Please enter the 6-digit numeric code.
+            </div>
+          </div>
+          <button type="submit" id="verify-otp">Verify & Sign In</button>
+        </form>
+      </div>
+
+      <div class="card" style="margin-bottom:0; background:rgba(15,22,38,0.75);">
+        <h2 style="margin-top:0; font-size:1.2rem;">🔐 OAuth & CLI Terminal Access</h2>
+        <p style="color:var(--text-muted); font-size:0.9rem; margin-top:0;">
+          Prefer social sign-in or logging in from a terminal? Authenticate with GitHub or run our CLI to get a browser verification URL:
+        </p>
+        <div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1rem;">
+          <button id="login" hidden>Sign in with GitHub</button>
+          <a href="/cli-auth" class="btn secondary">Enter CLI Terminal Code</a>
+        </div>
+        <pre style="margin:0;"><code>npx @codingcatdev/devrel-mcp login</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Authenticated Account & Provider Connections Vault -->
+  <section id="account" hidden style="margin-top:1.25rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+      <div>
+        <strong id="identity" style="font-size:1.05rem;"></strong>
+        <p id="connections" style="margin:0.2rem 0 0; color:var(--text-muted); font-size:0.9rem;"></p>
+      </div>
+      <div style="display:flex; gap:0.6rem;">
+        <button id="disconnect" type="button" class="danger">Disconnect all providers</button>
+        <button id="logout" type="button" class="secondary">Sign out</button>
+      </div>
+    </div>
+
+    <!-- OAuth 2.1 MCP Client Consent Section -->
+    <section id="consent" hidden={!isConsentRoute} class="card" style="border-color:var(--primary); background:rgba(139,92,246,0.1);">
+      <h2 style="margin-top:0;">🛡️ Authorize MCP Client</h2>
+      <p id="request" style="font-weight:600;"></p>
+      <p style="font-size:0.9rem; color:var(--text-muted);">
+        This grants the MCP client access to your documentation and connected DevRel activity-reporting & analytics tools.
+        Only approve clients you trust. Client names are supplied by the client and are not verified.
+      </p>
+      <div style="display:flex; gap:0.75rem;">
+        <button id="approve" type="button">Approve</button>
+        <button id="deny" type="button" class="secondary">Deny</button>
+      </div>
+    </section>
+
+    <div class="grid-2">
+      <!-- Core DevRel Programs: Google GDE & Microsoft MVP -->
+      <div class="card" style="margin-bottom:0;">
+        <h2 style="margin-top:0; font-size:1.2rem;">🏆 Core DevRel Programs (GDE & MVP)</h2>
+        <p style="color:var(--text-muted); font-size:0.86rem;">
+          Encrypted with AES-256-GCM in Cloudflare D1. Tokens are never displayed back to the browser.
+        </p>
+        <form id="credentials">
+          <div class="field">
+            <label for="gde">Advocu token (Google GDE)</label>
+            <span class="hint">Personal API token from your Advocu settings portal</span>
+            <input id="gde" type="password" autocomplete="off" maxlength="16384" />
+          </div>
+          <div class="field">
+            <label for="mvp">MVP token (Microsoft MVP Bearer Token)</label>
+            <span class="hint">Captured from mvp.microsoft.com or synced via CLI</span>
+            <input id="mvp" type="password" autocomplete="off" maxlength="16384" />
+          </div>
+          <div class="field">
+            <label for="profile">MVP profile ID</label>
+            <span class="hint">Numeric User Profile ID from your MVP account</span>
+            <input id="profile" type="number" min="1" step="1" />
+          </div>
+          <button type="submit">Save connections</button>
+        </form>
+      </div>
+
+      <!-- Content & Analytics Providers + Other Ambassador Programs -->
+      <div class="card" style="margin-bottom:0;">
+        <h2 style="margin-top:0; font-size:1.2rem;">📊 Content Analytics & Other Programs</h2>
+        <p style="color:var(--text-muted); font-size:0.86rem;">
+          Connect content platforms via OAuth or API token so your AI agent can automatically pull view counts, URLs, and dates before submitting reports.
+        </p>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem;">
+          <a href="/api/provider-oauth/github/start" class="btn secondary" style="font-size:0.82rem; padding:0.4rem 0.75rem;">
+            🔗 Connect GitHub OAuth
+          </a>
+          <a href="/api/provider-oauth/youtube/start" class="btn secondary" style="font-size:0.82rem; padding:0.4rem 0.75rem;">
+            🔗 Connect YouTube OAuth
+          </a>
+          <a href="/api/provider-oauth/microsoft/start" class="btn secondary" style="font-size:0.82rem; padding:0.4rem 0.75rem;">
+            🔗 Connect Microsoft OAuth
+          </a>
+        </div>
+        <form id="extended-credentials">
+          <div class="field">
+            <label for="youtube-key">YouTube Data API v3 Key / Token</label>
+            <span class="hint">Auto-fetches video views, likes, and publish dates</span>
+            <input id="youtube-key" type="password" autocomplete="off" maxlength="16384" />
+          </div>
+          <div class="field">
+            <label for="devto-key">Dev.to API Key</label>
+            <span class="hint">Auto-fetches article page_views_count and reactions</span>
+            <input id="devto-key" type="password" autocomplete="off" maxlength="16384" />
+          </div>
+          <div class="grid-2" style="gap:0.6rem;">
+            <div class="field">
+              <label for="hashnode-token">Hashnode PAT</label>
+              <span class="hint">Personal Access Token</span>
+              <input id="hashnode-token" type="password" autocomplete="off" maxlength="16384" />
+            </div>
+            <div class="field">
+              <label for="hashnode-host">Hashnode Host</label>
+              <span class="hint">e.g. blog.example.com</span>
+              <input id="hashnode-host" type="text" autocomplete="off" maxlength="256" />
+            </div>
+          </div>
+          <div class="grid-2" style="gap:0.6rem;">
+            <div class="field">
+              <label for="github-token">GitHub PAT</label>
+              <span class="hint">For OSS repo & release metrics</span>
+              <input id="github-token" type="password" autocomplete="off" maxlength="16384" />
+            </div>
+            <div class="field">
+              <label for="aws-handle">AWS Community Handle</label>
+              <span class="hint">AWS Community Builders alias</span>
+              <input id="aws-handle" type="text" autocomplete="off" maxlength="256" />
+            </div>
+          </div>
+          <button type="submit" class="secondary">Save Analytics & Program Connections</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</section>

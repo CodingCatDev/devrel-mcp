@@ -1,0 +1,42 @@
+{
+  "name": "@codingcatdev/devrel-mcp",
+  "version": "0.2.0",
+  "description": "Unified DevRel Activity Reporting & Analytics MCP Server (Google GDE, Microsoft MVP, AWS Community, Docker Captains, YouTube, Dev.to, Hashnode, GitHub)",
+  "type": "module",
+  "main": "dist/lib.js",
+  "types": "dist/lib.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/lib.d.ts",
+      "import": "./dist/lib.js"
+    },
+    "./docs/*": "./docs/*"
+  },
+  "bin": {
+    "devrel-mcp": "dist/index.js",
+    "advocu-mcp-server": "dist/index.js"
+  },
+  "files": [
+    "dist/**/*",
+    "docs/**/*",
+    "README.md",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "auth-mvp": "tsx scripts/auth-mvp.ts",
+    "capture-mvp-token": "tsx scripts/capture-mvp-token.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "dotenv": "^16.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "playwright": "^1.56.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}

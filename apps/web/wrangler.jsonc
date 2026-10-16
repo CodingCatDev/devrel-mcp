@@ -1,0 +1,65 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "devrel-mcp",
+  "account_id": "51d8bc77b3b1ba867fdfa7f6217fb39e",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "html_handling": "none"
+  },
+  "rules": [{ "type": "Text", "globs": ["**/*.md"], "fallthrough": true }],
+  "vars": {
+    "BETTER_AUTH_URL": "http://localhost:8787",
+    "PUBLIC_SITE_URL": "https://devrel.codingcat.dev"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "devrel-mcp",
+      "database_id": "replace-with-your-d1-database-id",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "ratelimits": [
+    {
+      "name": "MCP_RATE_LIMITER",
+      "namespace_id": "1001",
+      "simple": { "limit": 60, "period": 60 }
+    }
+  ],
+  "env": {
+    "production": {
+      "account_id": "51d8bc77b3b1ba867fdfa7f6217fb39e",
+      "routes": [
+        {
+          "pattern": "devrel.codingcat.dev",
+          "custom_domain": true
+        }
+      ],
+      "vars": {
+        "BETTER_AUTH_URL": "https://devrel.codingcat.dev",
+        "PUBLIC_SITE_URL": "https://devrel.codingcat.dev"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "devrel-mcp",
+          "database_id": "replace-with-your-d1-database-id",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "ratelimits": [
+        {
+          "name": "MCP_RATE_LIMITER",
+          "namespace_id": "1001",
+          "simple": { "limit": 60, "period": 60 }
+        }
+      ]
+    }
+  },
+  "observability": { "enabled": false }
+}

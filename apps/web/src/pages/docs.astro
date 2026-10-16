@@ -1,0 +1,72 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Documentation, MCP Tools & Security Model"
+  description="Complete documentation for DevRel MCP (devrel.codingcat.dev): OAuth 2.1 endpoints, Cloudflare D1 AES-256-GCM credential vault, CLI login, and all 19 MCP tools for Google GDE, Microsoft MVP, AWS Community Builders, and content analytics."
+  canonicalPath="/docs"
+>
+  <article class="card">
+    <span class="badge">Reference Documentation</span>
+    <h1 style="margin:0.5rem 0 0.5rem;">DevRel MCP Documentation & Tool Reference</h1>
+    <p style="color:var(--text-muted);">
+      DevRel MCP (`https://devrel.codingcat.dev`) is an open-source, multi-tenant Model Context Protocol (MCP) platform built by
+      <a href="https://codingcat.dev">CodingCat.dev</a> on Cloudflare Workers and D1.
+    </p>
+
+    <h2>🔌 MCP Connection & OAuth 2.1 Discovery</h2>
+    <ul>
+      <li><strong>Streamable HTTP MCP Endpoint:</strong> <code>https://devrel.codingcat.dev/mcp</code></li>
+      <li><strong>OAuth Protected Resource Metadata:</strong> <code>https://devrel.codingcat.dev/.well-known/oauth-protected-resource/mcp</code></li>
+      <li><strong>OAuth Authorization Server Metadata:</strong> <code>https://devrel.codingcat.dev/.well-known/oauth-authorization-server/api/auth</code></li>
+      <li><strong>Dynamic Client Registration:</strong> <code>POST https://devrel.codingcat.dev/api/auth/oauth2/register</code></li>
+      <li><strong>Supported Scopes:</strong> <code>mcp</code>, <code>offline_access</code></li>
+      <li><strong>Supported Grant Types:</strong> <code>authorization_code</code> (PKCE <code>S256</code>), <code>refresh_token</code></li>
+    </ul>
+
+    <h2>🧰 Available MCP Tools (19 Tools)</h2>
+
+    <h3>Google Developer Experts — Advocu API (7 Tools)</h3>
+    <ul>
+      <li><code>submit_gde_content_creation</code> — Submit articles, videos, podcasts, or books with reader/view counts</li>
+      <li><code>submit_gde_public_speaking</code> — Submit conference talks, livestreams, and meetups</li>
+      <li><code>submit_gde_workshop</code> — Submit hands-on training workshops</li>
+      <li><code>submit_gde_mentoring</code> — Submit 1:1 or group mentoring sessions</li>
+      <li><code>submit_gde_product_feedback</code> — Submit Google product feedback sessions</li>
+      <li><code>submit_gde_googler_interaction</code> — Submit interactions with Google engineers and PMs</li>
+      <li><code>submit_gde_story</code> — Submit high-impact community success stories</li>
+    </ul>
+
+    <h3>Microsoft MVP Portal API (4 Tools)</h3>
+    <ul>
+      <li><code>submit_mvp_video</code> — Submit videos, webinars, and livestreams with live & on-demand views</li>
+      <li><code>submit_mvp_blog</code> — Submit blog posts and technical articles</li>
+      <li><code>submit_mvp_speaking</code> — Submit speaking engagements and conferences</li>
+      <li><code>submit_mvp_book</code> — Submit authored or co-authored books and e-books</li>
+    </ul>
+
+    <h3>Content & Analytics Auto-Fetch Tools (4 Tools)</h3>
+    <ul>
+      <li><code>fetch_youtube_video_stats</code> — Pull title, publish date, views, likes, and comments from YouTube Data API v3</li>
+      <li><code>fetch_devto_articles</code> — Pull published articles, URLs, and <code>page_views_count</code> from Dev.to</li>
+      <li><code>fetch_hashnode_posts</code> — Pull publication posts and view counts from Hashnode GraphQL API</li>
+      <li><code>fetch_github_activity</code> — Pull repository metrics, stars, and activity from GitHub REST API</li>
+    </ul>
+
+    <h3>Ambassador Programs & Unified Ledger (4 Tools)</h3>
+    <ul>
+      <li><code>submit_ambassador_advocu_draft</code> — Submit drafts to Docker Captains, Cypress Ambassadors, or custom Advocu programs</li>
+      <li><code>log_devrel_activity</code> — Record activities for AWS Community Builders, CNCF, or cross-program tracking in Cloudflare D1</li>
+      <li><code>list_devrel_activities</code> — Query your logged and submitted DevRel activities across all programs</li>
+      <li><code>list_documentation</code> & <code>get_documentation</code> — Built-in API reference and field guides</li>
+    </ul>
+
+    <h2>🔒 Security & Encryption Architecture</h2>
+    <ul>
+      <li><strong>Zero Shared Credentials:</strong> Every user authenticates via Email Magic Link, Email OTP, or OAuth and receives an isolated credential vault row in Cloudflare D1.</li>
+      <li><strong>AES-256-GCM with AEAD User Binding:</strong> Provider tokens are encrypted using Web Crypto <code>AES-256-GCM</code> with a random 12-byte IV and the authenticated <code>user.id</code> bound as AEAD <code>additionalData</code>.</li>
+      <li><strong>Write-Only Browser Settings:</strong> Saved tokens are never returned to the browser; <code>GET /api/connections</code> only returns boolean connection status flags.</li>
+    </ul>
+  </article>
+</BaseLayout>

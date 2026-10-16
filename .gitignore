@@ -20,8 +20,6 @@ out/
 .vercel
 *.tsbuildinfo
 
-# Generated Documentation (TypeDoc output)
-packages/*/docs/
 
 # Misc
 .DS_Store
@@ -70,6 +68,9 @@ logs/
 .parcel-cache/
 .eslintcache
 .wrangler/
+.astro/
+test-results/
+playwright-report/
 .dev.vars
 .dev.vars.*
 !.dev.vars.example

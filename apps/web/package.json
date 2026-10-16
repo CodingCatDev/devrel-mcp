@@ -1,0 +1,32 @@
+{
+  "name": "@codingcatdev/devrel-web",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Cloudflare Worker + Astro AEO Site & OAuth 2.1 MCP Portal for devrel.codingcat.dev",
+  "type": "module",
+  "scripts": {
+    "build": "astro build",
+    "dev": "astro build && wrangler dev",
+    "dev:hosted": "astro build && wrangler dev",
+    "deploy": "astro build && wrangler deploy",
+    "db:migrate:local": "wrangler d1 migrations apply DB --local",
+    "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
+    "test:hosted": "playwright test tests/hosted.spec.ts --workers=1"
+  },
+  "dependencies": {
+    "@better-auth/mcp": "^1.7.10",
+    "@better-auth/oauth-provider": "^1.7.10",
+    "@codingcatdev/devrel-mcp": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "astro": "^5.5.0",
+    "better-auth": "^1.7.10"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261015.1",
+    "@playwright/test": "^1.56.0",
+    "@types/node": "^24.10.0",
+    "playwright": "^1.56.0",
+    "typescript": "^5.8.3",
+    "wrangler": "^4.151.0"
+  }
+}

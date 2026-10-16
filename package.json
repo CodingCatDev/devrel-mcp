@@ -1,96 +1,41 @@
 {
-  "name": "advocu-mcp-server",
-  "description": "Unified MCP Server for Google GDE (Advocu) and Microsoft MVP Activity Reporting",
-  "author": "Carlos Azaustre <cazaustre@gmail.com> (https://carlosazaustre.es/)",
+  "name": "devrel-mcp-monorepo",
+  "private": true,
+  "version": "0.2.0",
+  "description": "DevRel Activity Reporting & Analytics MCP Monorepo — Hosted on Cloudflare Workers + D1 + Astro at devrel.codingcat.dev",
+  "author": "CodingCat.dev <alex@codingcat.dev> (https://codingcat.dev)",
   "contributors": [
+    "Carlos Azaustre <cazaustre@gmail.com> (https://carlosazaustre.es/)",
     "Alan Buscaglia (https://gentleman.programming)"
   ],
-  "version": "0.1.3",
-  "main": "dist/index.js",
-  "bin": {
-    "advocu-mcp-server": "dist/index.js"
-  },
-  "files": [
-    "dist/**/*",
-    "README.md",
-    "LICENSE",
-    "package.json"
-  ],
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "scripts": {
-    "lint": "biome check",
-    "format": "biome format --write",
-    "test": "echo \"No test specified\"",
-    "prepare": "husky",
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "tsx src/index.ts",
-    "capture-mvp-token": "tsx scripts/capture-mvp-token.ts",
-    "auth-mvp": "tsx scripts/auth-mvp.ts",
-    "prepublishOnly": "npm run build",
-    "prepack": "npm run build",
-    "publish:dry": "npm publish --dry-run",
-    "release": "standard-version",
-    "release:patch": "standard-version --release-as patch",
-    "release:minor": "standard-version --release-as minor",
-    "release:major": "standard-version --release-as major",
-    "release:dry-run": "standard-version --dry-run",
-    "postrelease": "git push --follow-tags origin main && npm publish",
-    "dev:hosted": "wrangler dev",
-    "deploy:hosted": "wrangler deploy",
-    "db:migrate:local": "wrangler d1 migrations apply DB --local",
-    "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
-    "test:hosted": "npm run build && playwright test tests/hosted.spec.ts --workers=1"
-  },
-  "keywords": [
-    "gde",
-    "mvp",
-    "advocu",
-    "microsoft-mvp",
-    "mcp",
-    "server",
-    "model-context-protocol",
-    "google-developer-expert",
-    "activity-reporting",
-    "ai",
-    "claude",
-    "cli",
-    "developer-program"
-  ],
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/carlosazaustre/advocu-mcp-server.git"
+    "url": "git+https://github.com/CodingCatDev/devrel-mcp.git"
   },
-  "license": "MIT",
+  "engines": {
+    "node": ">=22.12.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "build": "pnpm --filter @codingcatdev/devrel-mcp build && pnpm --filter @codingcatdev/devrel-web build",
+    "dev": "pnpm --filter @codingcatdev/devrel-web dev",
+    "dev:stdio": "pnpm --filter @codingcatdev/devrel-mcp dev",
+    "dev:hosted": "pnpm --filter @codingcatdev/devrel-web dev:hosted",
+    "deploy": "pnpm build && pnpm --filter @codingcatdev/devrel-web deploy",
+    "deploy:hosted": "pnpm deploy",
+    "db:migrate:local": "pnpm --filter @codingcatdev/devrel-web db:migrate:local",
+    "db:migrate:remote": "pnpm --filter @codingcatdev/devrel-web db:migrate:remote",
+    "test": "pnpm test:hosted",
+    "test:hosted": "pnpm build && pnpm --filter @codingcatdev/devrel-web test:hosted",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "auth-mvp": "pnpm --filter @codingcatdev/devrel-mcp auth-mvp",
+    "capture-mvp-token": "pnpm --filter @codingcatdev/devrel-mcp capture-mvp-token"
+  },
   "devDependencies": {
     "@biomejs/biome": "2.3.3",
-    "@cloudflare/workers-types": "^5.20261015.1",
-    "@commitlint/cli": "^19.8.1",
-    "@commitlint/config-conventional": "^19.8.1",
-    "@playwright/test": "^1.56.0",
-    "@types/dotenv": "^6.1.1",
     "@types/node": "^24.10.0",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.2.6",
-    "playwright": "^1.56.0",
-    "standard-version": "^9.5.0",
-    "tsx": "^4.19.4",
-    "typescript": "^5.8.3",
-    "wrangler": "^4.151.0"
-  },
-  "dependencies": {
-    "@better-auth/mcp": "^1.7.10",
-    "@better-auth/oauth-provider": "^1.7.10",
-    "@modelcontextprotocol/sdk": "^1.32.1",
-    "better-auth": "^1.7.10",
-    "dotenv": "^16.5.0"
-  },
-  "optionalDependencies": {
-    "@biomejs/cli-darwin-arm64": "1.9.4",
-    "@biomejs/cli-darwin-x64": "1.9.4",
-    "@biomejs/cli-linux-x64": "1.9.4",
-    "@biomejs/cli-win32-x64": "1.9.4"
+    "typescript": "^5.8.3"
   }
 }
