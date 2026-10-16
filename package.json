@@ -34,7 +34,7 @@
     "capture-mvp-token": "pnpm --filter @codingcatdev/devrel-mcp capture-mvp-token"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.3",
+    "@biomejs/biome": "2.5.15",
     "@types/node": "^24.10.0",
     "typescript": "^5.8.3"
   }
