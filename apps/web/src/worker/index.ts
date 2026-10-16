@@ -10,6 +10,24 @@ import {
   saveCredentials,
   validateCredentials,
 } from "./credentials.js";
+import {
+  buildA2AAgentCard,
+  buildAgentSkillsIndex,
+  buildAiCatalog,
+  buildApiCatalog,
+  buildAuthMd,
+  buildDiscoveryLinkHeader,
+  buildMcpServerCard,
+  buildOpenApiSpec,
+  buildPoppyManifest,
+  buildRobotsTxt,
+  buildRootProtectedResourceMetadata,
+  enrichAuthServerMetadata,
+  getAgentSkillMarkdown,
+  markdownResponse,
+  renderMarkdownForPath,
+  wantsMarkdown,
+} from "./discovery.js";
 import { readDocumentation } from "./documents.js";
 
 interface Env extends HostedEnv {
@@ -135,22 +153,107 @@ async function route(request: Request, env: Env): Promise<Response> {
   const allowedOrigins = resolveAllowedOrigins(env);
   if (!allowedOrigins.includes(url.origin)) return json({ message: "Invalid host" }, 400);
   const origin = url.origin;
-  if (request.headers.has("origin") && request.headers.get("origin") !== origin) {
+
+  const isPublicDiscoveryGet =
+    (request.method === "GET" || request.method === "HEAD" || request.method === "OPTIONS") &&
+    (url.pathname.startsWith("/.well-known/") ||
+      url.pathname === "/robots.txt" ||
+      url.pathname === "/auth.md" ||
+      url.pathname === "/AUTH.md" ||
+      url.pathname === "/openapi.json" ||
+      url.pathname === "/api/health" ||
+      url.pathname === "/llms.txt" ||
+      url.pathname === "/llms-full.txt" ||
+      url.pathname === "/sitemap.xml");
+
+  if (!isPublicDiscoveryGet && request.headers.has("origin") && request.headers.get("origin") !== origin) {
     return json({ message: "Origin not allowed" }, 403);
+  }
+
+  if (request.method === "OPTIONS" && isPublicDiscoveryGet) {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
+      },
+    });
+  }
+
+  // Public Agent Discovery Endpoints
+  if ((request.method === "GET" || request.method === "HEAD") && url.pathname === "/robots.txt") {
+    return buildRobotsTxt(origin);
+  }
+  if ((request.method === "GET" || request.method === "HEAD") && (url.pathname === "/auth.md" || url.pathname === "/AUTH.md")) {
+    return buildAuthMd(origin);
+  }
+  if ((request.method === "GET" || request.method === "HEAD") && url.pathname === "/openapi.json") {
+    return buildOpenApiSpec(origin);
+  }
+  if ((request.method === "GET" || request.method === "HEAD") && url.pathname === "/api/health") {
+    return new Response(JSON.stringify({ status: "ok", service: "devrel-mcp", version: "1.0.0" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json; charset=utf-8", "Access-Control-Allow-Origin": "*" },
+    });
+  }
+  if ((request.method === "GET" || request.method === "HEAD") && url.pathname === "/.well-known/api-catalog") {
+    return buildApiCatalog(origin);
+  }
+  if (
+    (request.method === "GET" || request.method === "HEAD") &&
+    (url.pathname === "/.well-known/mcp/server-card.json" || url.pathname === "/.well-known/mcp.json")
+  ) {
+    return buildMcpServerCard(origin);
+  }
+  if ((request.method === "GET" || request.method === "HEAD") && url.pathname === "/.well-known/agent-card.json") {
+    return buildA2AAgentCard(origin);
+  }
+  if (
+    (request.method === "GET" || request.method === "HEAD") &&
+    (url.pathname === "/.well-known/agent-skills/index.json" || url.pathname === "/.well-known/skills/index.json")
+  ) {
+    return await buildAgentSkillsIndex(origin);
+  }
+  const skillMatch = url.pathname.match(/^\/\.well-known\/agent-skills\/([a-z0-9-]+)\/SKILL\.md$/);
+  if ((request.method === "GET" || request.method === "HEAD") && skillMatch) {
+    const skillMd = getAgentSkillMarkdown(skillMatch[1], origin);
+    if (skillMd) return markdownResponse(skillMd);
+  }
+  if ((request.method === "GET" || request.method === "HEAD") && url.pathname === "/.well-known/ai-catalog.json") {
+    return buildAiCatalog(origin, url.hostname);
+  }
+  if ((request.method === "GET" || request.method === "HEAD") && url.pathname === "/.well-known/poppy.json") {
+    return buildPoppyManifest(url.hostname);
   }
 
   const auth = createAuth(env, origin);
 
   if (
     url.pathname === "/.well-known/oauth-authorization-server" ||
-    url.pathname === "/.well-known/oauth-authorization-server/api/auth"
+    url.pathname === "/.well-known/oauth-authorization-server/api/auth" ||
+    url.pathname === "/api/auth/.well-known/oauth-authorization-server"
   ) {
-    return oauthProviderAuthServerMetadata(auth)(request);
+    const normalizedReq = new Request(new URL("/.well-known/oauth-authorization-server", origin), request);
+    const baseRes = await oauthProviderAuthServerMetadata(auth)(normalizedReq);
+    try {
+      const baseJson = (await baseRes.json()) as Record<string, unknown>;
+      const enriched = enrichAuthServerMetadata(baseJson, origin);
+      return new Response(JSON.stringify(enriched, null, 2), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
+    } catch {
+      return baseRes;
+    }
   }
-  if (
-    url.pathname === "/.well-known/oauth-protected-resource" ||
-    url.pathname === "/.well-known/oauth-protected-resource/mcp"
-  ) {
+  if (url.pathname === "/.well-known/oauth-protected-resource") {
+    return buildRootProtectedResourceMetadata(origin);
+  }
+  if (url.pathname === "/.well-known/oauth-protected-resource/mcp") {
     return auth.handler(request);
   }
   if (url.pathname.startsWith("/api/auth/")) return auth.handler(request);
@@ -188,8 +291,8 @@ async function route(request: Request, env: Env): Promise<Response> {
     });
   }
 
-  // CLI Terminal Link Login Endpoints
-  if (url.pathname === "/api/cli/start" && request.method === "POST") {
+  // CLI Terminal Link & Auth.md Agent Registration Endpoints
+  if ((url.pathname === "/api/cli/start" || url.pathname === "/agent/identity") && request.method === "POST") {
     let clientName = "devrel-mcp-cli";
     try {
       const body = (await request.json()) as { clientName?: unknown };
@@ -488,8 +591,13 @@ async function route(request: Request, env: Env): Promise<Response> {
     )(request);
   }
 
-  // Serve Astro pre-rendered pages and static assets
+  // Serve Markdown for Agents when Accept: text/markdown is requested, otherwise Astro HTML and static assets
   if (request.method === "GET" || request.method === "HEAD") {
+    if (wantsMarkdown(request)) {
+      const mdRes = renderMarkdownForPath(url.pathname, origin);
+      if (mdRes) return mdRes;
+    }
+
     let assetPath = url.pathname;
     if (assetPath === "/") {
       assetPath = "/index.html";
@@ -510,6 +618,7 @@ export default {
   async fetch(incoming: Request, env: Env): Promise<Response> {
     let request = incoming;
     let response: Response;
+    const reqUrl = new URL(incoming.url);
     try {
       if (request.body) {
         const reader = request.body.getReader();
@@ -538,6 +647,12 @@ export default {
       response = json({ message: "Service unavailable. Please try again." }, 500);
     }
     const headers = new Headers(response.headers);
+    if (!headers.has("Link")) {
+      headers.set("Link", buildDiscoveryLinkHeader(reqUrl.origin));
+    }
+    if (response.status === 401 && !headers.has("WWW-Authenticate")) {
+      headers.set("WWW-Authenticate", `Bearer resource_metadata="${reqUrl.origin}/.well-known/oauth-protected-resource"`);
+    }
     headers.set("Cache-Control", "no-store");
     headers.set("Referrer-Policy", "no-referrer");
     headers.set("X-Content-Type-Options", "nosniff");
@@ -546,7 +661,7 @@ export default {
       "Content-Security-Policy",
       "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
     );
-    if (new URL(request.url).protocol === "https:") {
+    if (reqUrl.protocol === "https:") {
       headers.set("Strict-Transport-Security", "max-age=31536000");
     }
     return new Response(response.body, { status: response.status, statusText: response.statusText, headers });

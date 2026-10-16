@@ -1,0 +1,6 @@
+; DNS for AI Discovery (DNS-AID) & ARD records for devrel.codingcat.dev
+; Import into Cloudflare DNS (Zone: codingcat.dev -> DNS -> Records -> Import and Export)
+_index._agents.devrel.codingcat.dev. 3600 IN SVCB 1 devrel.codingcat.dev. alpn="h2" port=443 mandatory=alpn,port
+_mcp._agents.devrel.codingcat.dev. 3600 IN SVCB 1 devrel.codingcat.dev. alpn="h2,mcp" port=443 mandatory=alpn,port
+_a2a._agents.devrel.codingcat.dev. 3600 IN SVCB 1 devrel.codingcat.dev. alpn="h2,a2a" port=443 mandatory=alpn,port
+_catalog._agents.devrel.codingcat.dev. 3600 IN TXT "url=https://devrel.codingcat.dev/.well-known/ai-catalog.json"

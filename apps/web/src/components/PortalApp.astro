@@ -27,7 +27,11 @@ const { isConsentRoute = false } = Astro.props;
     <div class="grid-2">
       <div class="card" style="margin-bottom:0; background:rgba(15,22,38,0.75);">
         <h2 style="margin-top:0; font-size:1.2rem;">✉️ Sign in with Email (Magic Link or 6-Digit Code)</h2>
-        <form id="email-auth-form">
+        <form
+          id="email-auth-form"
+          toolname="request_email_magic_link"
+          tooldescription="Send a passwordless email magic sign-in link to authenticate with DevRel MCP"
+        >
           <div class="field">
             <label for="auth-email">Email Address</label>
             <span id="email-hint" class="hint">Format: you@domain.com — We'll send a one-click link or 6-digit OTP</span>
@@ -39,6 +43,7 @@ const { isConsentRoute = false } = Astro.props;
               autocomplete="email"
               aria-describedby="email-hint"
               aria-errormessage="email-error"
+              toolparamdescription="User email address to receive the magic sign-in link or 6-digit OTP code"
               placeholder="alex@codingcat.dev"
             />
             <div id="email-error" class="error-msg">
@@ -51,7 +56,13 @@ const { isConsentRoute = false } = Astro.props;
           </div>
         </form>
 
-        <form id="otp-verify-form" hidden style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border);">
+        <form
+          id="otp-verify-form"
+          hidden
+          toolname="verify_email_otp"
+          tooldescription="Verify a 6-digit email OTP code to complete sign-in"
+          style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border);"
+        >
           <div class="field">
             <label for="auth-otp">Enter 6-Digit Verification Code</label>
             <span id="otp-hint" class="hint">Check your email inbox for the 6-digit code</span>
@@ -66,6 +77,7 @@ const { isConsentRoute = false } = Astro.props;
               required
               aria-describedby="otp-hint"
               aria-errormessage="otp-error"
+              toolparamdescription="6-digit numeric verification code sent to the user's email"
               placeholder="123456"
             />
             <div id="otp-error" class="error-msg">
@@ -124,21 +136,46 @@ const { isConsentRoute = false } = Astro.props;
         <p style="color:var(--text-muted); font-size:0.86rem;">
           Encrypted with AES-256-GCM in Cloudflare D1. Tokens are never displayed back to the browser.
         </p>
-        <form id="credentials">
+        <form
+          id="credentials"
+          toolname="save_core_devrel_credentials"
+          tooldescription="Save Google GDE Advocu token and Microsoft MVP token & profile ID into the encrypted D1 vault"
+        >
           <div class="field">
             <label for="gde">Advocu token (Google GDE)</label>
             <span class="hint">Personal API token from your Advocu settings portal</span>
-            <input id="gde" type="password" autocomplete="off" maxlength="16384" />
+            <input
+              id="gde"
+              name="gde"
+              type="password"
+              autocomplete="off"
+              maxlength="16384"
+              toolparamdescription="Advocu personal API bearer token for Google GDE activity reporting"
+            />
           </div>
           <div class="field">
             <label for="mvp">MVP token (Microsoft MVP Bearer Token)</label>
             <span class="hint">Captured from mvp.microsoft.com or synced via CLI</span>
-            <input id="mvp" type="password" autocomplete="off" maxlength="16384" />
+            <input
+              id="mvp"
+              name="mvp"
+              type="password"
+              autocomplete="off"
+              maxlength="16384"
+              toolparamdescription="Microsoft MVP portal bearer token"
+            />
           </div>
           <div class="field">
             <label for="profile">MVP profile ID</label>
             <span class="hint">Numeric User Profile ID from your MVP account</span>
-            <input id="profile" type="number" min="1" step="1" />
+            <input
+              id="profile"
+              name="profile"
+              type="number"
+              min="1"
+              step="1"
+              toolparamdescription="Positive integer Microsoft MVP userProfileId"
+            />
           </div>
           <button type="submit">Save connections</button>
         </form>
@@ -161,39 +198,85 @@ const { isConsentRoute = false } = Astro.props;
             🔗 Connect Microsoft OAuth
           </a>
         </div>
-        <form id="extended-credentials">
+        <form
+          id="extended-credentials"
+          toolname="save_analytics_and_program_credentials"
+          tooldescription="Save YouTube, Dev.to, Hashnode, GitHub, and AWS Community Builders credentials into the encrypted D1 vault"
+        >
           <div class="field">
             <label for="youtube-key">YouTube Data API v3 Key / Token</label>
             <span class="hint">Auto-fetches video views, likes, and publish dates</span>
-            <input id="youtube-key" type="password" autocomplete="off" maxlength="16384" />
+            <input
+              id="youtube-key"
+              name="youtubeKey"
+              type="password"
+              autocomplete="off"
+              maxlength="16384"
+              toolparamdescription="YouTube Data API v3 key or OAuth access token"
+            />
           </div>
           <div class="field">
             <label for="devto-key">Dev.to API Key</label>
             <span class="hint">Auto-fetches article page_views_count and reactions</span>
-            <input id="devto-key" type="password" autocomplete="off" maxlength="16384" />
+            <input
+              id="devto-key"
+              name="devtoKey"
+              type="password"
+              autocomplete="off"
+              maxlength="16384"
+              toolparamdescription="Dev.to Forem API key"
+            />
           </div>
           <div class="grid-2" style="gap:0.6rem;">
             <div class="field">
               <label for="hashnode-token">Hashnode PAT</label>
               <span class="hint">Personal Access Token</span>
-              <input id="hashnode-token" type="password" autocomplete="off" maxlength="16384" />
+              <input
+                id="hashnode-token"
+                name="hashnodeToken"
+                type="password"
+                autocomplete="off"
+                maxlength="16384"
+                toolparamdescription="Hashnode GraphQL Personal Access Token"
+              />
             </div>
             <div class="field">
               <label for="hashnode-host">Hashnode Host</label>
               <span class="hint">e.g. blog.example.com</span>
-              <input id="hashnode-host" type="text" autocomplete="off" maxlength="256" />
+              <input
+                id="hashnode-host"
+                name="hashnodeHost"
+                type="text"
+                autocomplete="off"
+                maxlength="256"
+                toolparamdescription="Hashnode publication hostname (e.g. blog.example.com)"
+              />
             </div>
           </div>
           <div class="grid-2" style="gap:0.6rem;">
             <div class="field">
               <label for="github-token">GitHub PAT</label>
               <span class="hint">For OSS repo & release metrics</span>
-              <input id="github-token" type="password" autocomplete="off" maxlength="16384" />
+              <input
+                id="github-token"
+                name="githubToken"
+                type="password"
+                autocomplete="off"
+                maxlength="16384"
+                toolparamdescription="GitHub Personal Access Token for repository metrics"
+              />
             </div>
             <div class="field">
               <label for="aws-handle">AWS Community Handle</label>
               <span class="hint">AWS Community Builders alias</span>
-              <input id="aws-handle" type="text" autocomplete="off" maxlength="256" />
+              <input
+                id="aws-handle"
+                name="awsHandle"
+                type="text"
+                autocomplete="off"
+                maxlength="256"
+                toolparamdescription="AWS Community Builders user handle"
+              />
             </div>
           </div>
           <button type="submit" class="secondary">Save Analytics & Program Connections</button>

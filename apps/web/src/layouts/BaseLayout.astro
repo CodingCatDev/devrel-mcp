@@ -24,11 +24,7 @@ const jsonLd = {
       "operatingSystem": "Cloudflare Workers, macOS, Linux, Windows",
       "url": siteUrl,
       "description": description,
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD",
-      },
+      "isAccessibleForFree": true,
       "author": {
         "@type": "Organization",
         "name": "CodingCat.dev",
@@ -48,7 +44,7 @@ const jsonLd = {
       "name": "DevRel MCP Streamable HTTP Endpoint",
       "description": "OAuth 2.1 protected Model Context Protocol (MCP) Streamable HTTP endpoint for AI agents (Claude, Cursor, Windsurf, ChatGPT).",
       "documentation": `${siteUrl}/docs`,
-      " endpointURL": `${siteUrl}/mcp`,
+      "endpointURL": `${siteUrl}/mcp`,
       "termsOfService": `${siteUrl}/docs`,
     },
     {
@@ -94,6 +90,11 @@ const jsonLd = {
     <link rel="canonical" href={canonicalUrl} />
     <link rel="alternate" type="text/plain" title="LLMs.txt" href="/llms.txt" />
     <link rel="alternate" type="text/plain" title="LLMs Full Documentation" href="/llms-full.txt" />
+    <link rel="api-catalog" href="/.well-known/api-catalog" />
+    <link rel="service-desc" type="application/json" href="/.well-known/mcp/server-card.json" />
+    <link rel="service-doc" type="text/html" href="/docs" />
+    <link rel="describedby" type="text/plain" href="/llms.txt" />
+    <link rel="ai-catalog" type="application/json" href="/.well-known/ai-catalog.json" />
 
     <!-- OpenGraph / AEO Meta -->
     <meta property="og:type" content="website" />
@@ -305,6 +306,15 @@ const jsonLd = {
 
       input:user-valid {
         border-color: rgba(34, 197, 94, 0.6);
+      }
+
+      form:tool-form-active {
+        outline: 2px dashed var(--accent);
+        background-color: rgba(56, 189, 248, 0.06);
+      }
+
+      button:tool-submit-active {
+        outline: 2px dashed var(--primary);
       }
 
       code, pre {

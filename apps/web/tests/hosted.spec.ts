@@ -173,7 +173,52 @@ test("serves Astro AEO pages, llms.txt, and OAuth discovery, rejecting unauthent
   expect(html).toContain("Sign in with GitHub");
   expect(html).toContain("Send Magic Link");
   expect(html).toContain("application/ld+json");
+  expect(html).toContain('toolname="request_email_magic_link"');
   expect(page.headers.get("content-security-policy")).toContain("frame-ancestors 'none'");
+  expect(page.headers.get("link")).toContain('rel="api-catalog"');
+  expect(page.headers.get("link")).toContain('rel="service-desc"');
+
+  const mdPage = await request("/", { headers: { Accept: "text/markdown" } });
+  expect(mdPage.status).toBe(200);
+  expect(mdPage.headers.get("content-type")).toContain("text/markdown");
+  expect(Number(mdPage.headers.get("x-markdown-tokens"))).toBeGreaterThan(10);
+  expect(await mdPage.text()).toContain("# DevRel Activity Reporting & Analytics MCP Server");
+
+  const robots = await request("/robots.txt");
+  expect(robots.status).toBe(200);
+  const robotsTxt = await robots.text();
+  expect(robotsTxt).toContain("Content-Signal: ai-train=yes, search=yes, ai-input=yes");
+  expect(robotsTxt).toContain(`Agentmap: ${origin}/.well-known/ai-catalog.json`);
+
+  const apiCatalog = await request("/.well-known/api-catalog");
+  expect(apiCatalog.status).toBe(200);
+  expect(apiCatalog.headers.get("content-type")).toContain("application/linkset+json");
+  expect((await apiCatalog.json()).linkset.length).toBeGreaterThanOrEqual(2);
+
+  const rootPrm = await request("/.well-known/oauth-protected-resource");
+  expect(rootPrm.status).toBe(200);
+  expect((await rootPrm.json()).resource).toBe(origin);
+
+  const authMd = await request("/auth.md");
+  expect(authMd.status).toBe(200);
+  expect(await authMd.text()).toContain("# DevRel MCP auth.md");
+
+  const serverCard = await request("/.well-known/mcp/server-card.json");
+  expect(serverCard.status).toBe(200);
+  expect((await serverCard.json()).serverInfo.name).toContain("DevRel");
+
+  const skillsIdx = await request("/.well-known/agent-skills/index.json");
+  expect(skillsIdx.status).toBe(200);
+  const skillsBody = await skillsIdx.json();
+  expect(skillsBody.$schema).toBe("https://schemas.agentskills.io/discovery/0.2.0/schema.json");
+  expect(skillsBody.skills[0].digest).toMatch(/^sha256:[0-9a-f]{64}$/);
+
+  const aiCatalog = await request("/.well-known/ai-catalog.json", {
+    headers: { Origin: "https://isitagentready.com" },
+  });
+  expect(aiCatalog.status).toBe(200);
+  expect(aiCatalog.headers.get("access-control-allow-origin")).toBe("*");
+  expect((await aiCatalog.json()).entries.length).toBeGreaterThanOrEqual(2);
 
   const llms = await request("/llms.txt");
   expect(llms.status).toBe(200);
@@ -186,7 +231,9 @@ test("serves Astro AEO pages, llms.txt, and OAuth discovery, rejecting unauthent
   const metadata = await request("/.well-known/oauth-protected-resource/mcp");
   expect((await metadata.json()).resource).toBe(`${origin}/mcp`);
   const issuer = await request("/.well-known/oauth-authorization-server/api/auth");
-  expect((await issuer.json()).issuer).toBe(`${origin}/api/auth`);
+  const issuerJson = await issuer.json();
+  expect(issuerJson.issuer).toBe(`${origin}/api/auth`);
+  expect(issuerJson.agent_auth.skill).toBe(`${origin}/auth.md`);
   expect((await request("/api/connections")).status).toBe(401);
   const unauthorized = await request("/mcp");
   expect(unauthorized.status).toBe(401);

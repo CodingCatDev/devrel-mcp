@@ -16,6 +16,26 @@
     "devrel-mcp": "dist/index.js",
     "advocu-mcp-server": "dist/index.js"
   },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CodingCatDev/devrel-mcp.git",
+    "directory": "packages/mcp-server"
+  },
+  "homepage": "https://devrel.codingcat.dev",
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "devrel",
+    "gde",
+    "advocu",
+    "microsoft-mvp",
+    "cloudflare-workers",
+    "d1"
+  ],
   "files": [
     "dist/**/*",
     "docs/**/*",

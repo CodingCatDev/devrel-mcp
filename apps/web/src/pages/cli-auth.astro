@@ -13,7 +13,12 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     <p style="color:var(--text-muted);">
       Sign in below (if not already signed in), then enter or confirm the 8-character verification code displayed in your terminal (`npx @codingcatdev/devrel-mcp login`).
     </p>
-    <form id="cli-approve-form" style="max-width:420px;">
+    <form
+      id="cli-approve-form"
+      toolname="approve_cli_device_code"
+      tooldescription="Approve a DevRel MCP CLI terminal session using the 8-character user verification code"
+      style="max-width:420px;"
+    >
       <div class="field">
         <label for="cli-user-code">Terminal Verification Code</label>
         <span id="cli-code-hint" class="hint">Format: ABCD-1234 (printed in your terminal)</span>
@@ -24,6 +29,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
           required
           maxlength="12"
           aria-describedby="cli-code-hint"
+          toolparamdescription="8-character terminal verification code formatted as ABCD-1234"
           placeholder="ABCD-1234"
         />
       </div>
