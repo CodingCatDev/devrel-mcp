@@ -22,7 +22,7 @@
     "better-auth": "^1.7.10"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20261015.1",
+    "@cloudflare/workers-types": "^5.20261019.1",
     "@playwright/test": "^1.56.0",
     "@types/node": "^24.10.0",
     "playwright": "^1.56.0",
